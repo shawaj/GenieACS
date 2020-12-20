@@ -6,3 +6,99 @@ RUN useradd --system --no-create-home --user-group genieacs
 RUN mkdir /opt/genieacs
 RUN mkdir /opt/genieacs/ext
 RUN chown genieacs:genieacs /opt/genieacs/ext
+
+nano /opt/genieacs/genieacs.env
+
+GENIEACS_CWMP_ACCESS_LOG_FILE=/var/log/genieacs/genieacs-cwmp-access.log
+GENIEACS_NBI_ACCESS_LOG_FILE=/var/log/genieacs/genieacs-nbi-access.log
+GENIEACS_FS_ACCESS_LOG_FILE=/var/log/genieacs/genieacs-fs-access.log
+GENIEACS_UI_ACCESS_LOG_FILE=/var/log/genieacs/genieacs-ui-access.log
+GENIEACS_DEBUG_FILE=/var/log/genieacs/genieacs-debug.yaml
+GENIEACS_EXT_DIR=/opt/genieacs/ext
+GENIEACS_UI_JWT_SECRET=secret
+
+sudo chown genieacs:genieacs /opt/genieacs/genieacs.env
+sudo chmod 600 /opt/genieacs/genieacs.env
+mkdir /var/log/genieacs
+chown genieacs:genieacs /var/log/genieacs
+systemctl edit --force --full genieacs-cwmp
+
+[Unit]
+Description=GenieACS CWMP
+After=network.target
+
+[Service]
+User=genieacs
+EnvironmentFile=/opt/genieacs/genieacs.env
+ExecStart=/usr/bin/genieacs-cwmp
+
+[Install]
+WantedBy=default.target
+
+systemctl edit --force --full genieacs-nbi
+
+[Unit]
+Description=GenieACS NBI
+After=network.target
+
+[Service]
+User=genieacs
+EnvironmentFile=/opt/genieacs/genieacs.env
+ExecStart=/usr/bin/genieacs-nbi
+
+[Install]
+WantedBy=default.target
+
+systemctl edit --force --full genieacs-fs
+
+[Unit]
+Description=GenieACS FS
+After=network.target
+
+[Service]
+User=genieacs
+EnvironmentFile=/opt/genieacs/genieacs.env
+ExecStart=/usr/bin/genieacs-fs
+
+[Install]
+WantedBy=default.target
+
+systemctl edit --force --full genieacs-ui
+
+[Unit]
+Description=GenieACS UI
+After=network.target
+
+[Service]
+User=genieacs
+EnvironmentFile=/opt/genieacs/genieacs.env
+ExecStart=/usr/bin/genieacs-ui
+
+[Install]
+WantedBy=default.target
+
+Save the following as /etc/logrotate.d/genieacs
+
+/var/log/genieacs/*.log /var/log/genieacs/*.yaml {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    dateext
+}
+
+sudo systemctl enable genieacs-cwmp
+sudo systemctl start genieacs-cwmp
+sudo systemctl status genieacs-cwmp
+
+sudo systemctl enable genieacs-nbi
+sudo systemctl start genieacs-nbi
+sudo systemctl status genieacs-nbi
+
+sudo systemctl enable genieacs-fs
+sudo systemctl start genieacs-fs
+sudo systemctl status genieacs-fs
+
+sudo systemctl enable genieacs-ui
+sudo systemctl start genieacs-ui
+sudo systemctl status genieacs-ui
