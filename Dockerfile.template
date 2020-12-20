@@ -1,0 +1,8 @@
+FROM balenalib/%%BALENA_MACHINE_NAME%%-node
+
+RUN apt-get -y update && apt-get -y upgrade
+RUN npm install -g --unsafe-perm genieacs
+RUN useradd --system --no-create-home --user-group genieacs
+RUN mkdir /opt/genieacs
+RUN mkdir /opt/genieacs/ext
+RUN chown genieacs:genieacs /opt/genieacs/ext
